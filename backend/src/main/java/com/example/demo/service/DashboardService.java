@@ -2,8 +2,13 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.example.demo.common.AppExceptions.UserBannedException;
+import com.example.demo.common.AppExceptions.UserNotFoundException;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.UserRepository;
 
@@ -15,23 +20,34 @@ public class DashboardService {
 
     private final UserRepository userRepository;
 
-    // Fetches the dashboard info for the currently logged in user
+    /**
+     * Fetches dashboard info for the currently logged-in user.
+     * Also checks if the user is banned and throws if so.
+     */
     public UserEntity getMyDashboardMetrics() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = auth.getName();
 
-        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(currentUserId));
 
-        return userRepository.findById(currentUserId).orElseThrow(()->new RuntimeException("User profile out of sync."));
+        if (!user.isActive()) {
+            throw new UserBannedException();
+        }
+
+        return user;
     }
 
-    // Admins and Owners can fetch any user profile metrics
+    /** Admins and Owners can fetch any user's profile metrics */
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')") // Strict override boundary
     public UserEntity getUserMetricsById(String userId) {
-         
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found."));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    // Owners can look at across-the-board user summaries
+    /** Owners can see across-the-board user summaries */
+    @PreAuthorize("hasAuthority('ROLE_OWNER')") // Strict override boundary
     public List<UserEntity> getAllUserMetrics() {
-        
         return userRepository.findAll();
     }
 }

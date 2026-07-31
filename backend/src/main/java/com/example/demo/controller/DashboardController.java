@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,33 +16,31 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = "*") // Adjust to your Frontend port later
-
+// @CrossOrigin removed — SecurityConfig already handles CORS.
+// Having both causes Spring to apply CORS twice which can cause issues.
 @RequiredArgsConstructor
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-        // 1. avail to all authenticated users (User, Admin, Owner)
+    /** Available to ALL authenticated users (USER, ADMIN, OWNER) */
     @GetMapping("/me")
+     @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<UserEntity> getMyDashboard() {
-
         return ResponseEntity.ok(dashboardService.getMyDashboardMetrics());
     }
 
-    // 2. Only Admins and Owners can manipulate/view other specific user data
+    /** Only Admins and Owners can view other specific user data */
     @GetMapping("/user/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<UserEntity> getUserDashboardById(@PathVariable String id) {
-
         return ResponseEntity.ok(dashboardService.getUserMetricsById(id));
     }
 
-    // 3. Only Owners can see the global overview
+    /** Only Owners can see the global overview */
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_OWNER')")
     public ResponseEntity<List<UserEntity>> getAllDashboards() {
-        
         return ResponseEntity.ok(dashboardService.getAllUserMetrics());
     }
 }

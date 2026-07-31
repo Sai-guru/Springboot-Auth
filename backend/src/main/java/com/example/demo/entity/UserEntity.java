@@ -26,14 +26,19 @@ public class UserEntity {
     @Id
     private String id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true)
     private String email;
 
     @Column(nullable = false)
     private String role; // ROLE_USER, ROLE_ADMIN, ROLE_OWNER
+
+    //soft ban flag..
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
 
     // Dashboard Metric Counters
     @Column(nullable = false)
@@ -43,6 +48,10 @@ public class UserEntity {
     @Column(nullable = false)
     @Builder.Default
     private long likeCount = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private long commentCount = 0;
 
     @Column(nullable = false)
     @Builder.Default
