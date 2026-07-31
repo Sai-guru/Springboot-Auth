@@ -4,9 +4,9 @@ A role-based access control REST API built with **Spring Boot**, **Spring Securi
 
 ---
 
-# This is the Backend 
+# This is the Backend of our project 
 
-# [**Frontend (Click here to access that repo)**](https://github.com/Sai-guru/RBAC-Springboot-Auth)
+# [**Frontend (Click here to access that repo)**](https://github.com/Sai-guru/RBAC-Next.js-Clerk-Springboot)
 
 ## 🎯 What It Does
 
