@@ -215,3 +215,11 @@ Just look into the application.example.yaml
 # 5. Test with curl
 curl -H "Authorization: Bearer YOUR_JWT" http://localhost:5000/api/dashboard/me
 ```
+
+## 👤 Author
+
+[**Prigeesh**](https://github.com/Sai-guru)
+
+Arch Linux | SpringBoot | PostgreSQL | Clerk JWT-OAuth | Lombok | Maven
+
+Always fell free to discuss...
