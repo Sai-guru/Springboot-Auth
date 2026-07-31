@@ -16,31 +16,32 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/dashboard")
-// @CrossOrigin removed — SecurityConfig already handles CORS.
-// Having both causes Spring to apply CORS twice which can cause issues.
 @RequiredArgsConstructor
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    /** Available to ALL authenticated users (USER, ADMIN, OWNER) */
+    //  Avail to ALL authenticated users...
     @GetMapping("/me")
      @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<UserEntity> getMyDashboard() {
+    public ResponseEntity<UserEntity>  getMyDashboard() {
+
         return ResponseEntity.ok(dashboardService.getMyDashboardMetrics());
     }
 
-    /** Only Admins and Owners can view other specific user data */
+    //  Only Admins and Owners can view other specific user data
     @GetMapping("/user/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<UserEntity> getUserDashboardById(@PathVariable String id) {
+
         return ResponseEntity.ok(dashboardService.getUserMetricsById(id));
     }
 
-    /** Only Owners can see the global overview */
+    //  Only Owners can see the global overview
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_OWNER')")
     public ResponseEntity<List<UserEntity>> getAllDashboards() {
+
         return ResponseEntity.ok(dashboardService.getAllUserMetrics());
     }
 }

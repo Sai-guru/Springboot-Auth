@@ -1,9 +1,8 @@
 package com.example.demo.common;
 
-/**
- * Structured exceptions so your GlobalExceptionHandler can return clean JSON errors
- * instead of raw 500 stack traces.
- */
+
+//   Structured exceptions so your GlobalExceptionHandler can return clean JSON errors which is pakka cool
+ 
 public class AppExceptions {
 
     public static class UserNotFoundException extends RuntimeException {

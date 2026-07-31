@@ -15,15 +15,14 @@ public class SecurityConfig {
 
     private final ClerkSyncJwtConverter clerkSyncJwtConverter;
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception {
 
         http
         .cors(cors -> cors.configurationSource(request -> {
             var config = new org.springframework.web.cors.CorsConfiguration();
-            config.setAllowedOrigins(java.util.List.of("http://localhost:3000")); 
-            config.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE"));
+            config.setAllowedOrigins(java.util.List.of("http://localhost:3000")); //my frontend Next.js server port num btw... 
+            config.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE")); //Only these Crud ops are allowed from frontend
 
             config.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
             config.setAllowCredentials(true);
@@ -32,11 +31,8 @@ public class SecurityConfig {
         }))
         .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/**").permitAll() // Actuator monitoring endpoints
-                .anyRequest().authenticated())
-
-                
-            .oauth2ResourceServer(oauth2-> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(clerkSyncJwtConverter)));
+        .requestMatchers("/actuator/**").permitAll() // Actuator monitoring endpoints
+        .anyRequest().authenticated()).oauth2ResourceServer(oauth2-> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(clerkSyncJwtConverter)));
             
         return http.build();
 

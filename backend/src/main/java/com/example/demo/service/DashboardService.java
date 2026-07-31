@@ -20,34 +20,34 @@ public class DashboardService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Fetches dashboard info for the currently logged-in user.
-     * Also checks if the user is banned and throws if so.
-     */
+   
+    //  Fetches dashboard info for the currently logged-in user.
+    //  Also checks if the user is banned and throws if so.
+     
     public UserEntity getMyDashboardMetrics() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = auth.getName();
 
-        UserEntity user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new UserNotFoundException(currentUserId));
+        UserEntity user = userRepository.findById(currentUserId).orElseThrow(()->new UserNotFoundException(currentUserId));
 
         if (!user.isActive()) {
             throw new UserBannedException();
         }
-
         return user;
     }
 
-    /** Admins and Owners can fetch any user's profile metrics */
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')") // Strict override boundary
+    // Admins and Owners can fetch any user's profile metrics 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')") 
     public UserEntity getUserMetricsById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
     }
 
-    /** Owners can see across-the-board user summaries */
-    @PreAuthorize("hasAuthority('ROLE_OWNER')") // Strict override boundary
+    // Owners can see across-the-board user summaries 
+    @PreAuthorize("hasAuthority('ROLE_OWNER')") 
     public List<UserEntity> getAllUserMetrics() {
+
         return userRepository.findAll();
     }
 }

@@ -16,22 +16,16 @@ import com.example.demo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Converts a Clerk JWT into a Spring Security Authentication token.
- * 
- * CRITICAL FIX: Previously this used JwtGrantedAuthoritiesConverter which reads
- * from the JWT's scope/scp claims — NOT from the database role. This meant
- * @PreAuthorize("hasAuthority('ROLE_ADMIN')") would NEVER match.
- * 
- * Now we build authorities directly from the user's role stored in DB.
- */
+//  Converts our Clerk JWT into a Spring Security Authentication token.
+//  Now we build authorities directly from the user's role stored in DB.
+ 
 @Component
 @RequiredArgsConstructor
-public class ClerkSyncJwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class ClerkSyncJwtConverter implements Converter<Jwt,AbstractAuthenticationToken> {
 
     private final UserRepository userRepository;
 
-    // Valid roles in the system
+    // Valid roles in our system
     public static final String ROLE_USER  = "ROLE_USER";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_OWNER = "ROLE_OWNER";
@@ -48,24 +42,24 @@ public class ClerkSyncJwtConverter implements Converter<Jwt, AbstractAuthenticat
             username = (email != null && email.contains("@"))
                     ? email.split("@")[0]
                     : "user_" + userId.substring(0, 8); // fallback
-        } else {
-            username = rawUsername;
         }
+          else username = rawUsername;
+        
 
-        // Read role from Clerk's custom claim (you set this in Clerk dashboard)
+        // Read role from Clerk's custom claim (wwe setted this in Clerk dashboard)
         String assignedRole = jwt.getClaimAsString("role");
-        if (assignedRole == null || assignedRole.isBlank()) {
-            assignedRole = ROLE_USER; // default entry role for all new signups
-        }
 
-        // Validate against known roles — reject unknown values to prevent privilege escalation
+        if (assignedRole == null || assignedRole.isBlank()) assignedRole = ROLE_USER; // default entry role for all new signups
+        
+
+        // reject unknown values to prevent privilege escalation
         String normalizedRole = switch (assignedRole.toUpperCase()) {
-            case "ROLE_ADMIN" -> ROLE_ADMIN;
-            case "ROLE_OWNER" -> ROLE_OWNER;
-            default           -> ROLE_USER;
+            case "ROLE_ADMIN" ->ROLE_ADMIN;
+            case "ROLE_OWNER"-> ROLE_OWNER;
+            default-> ROLE_USER;
         };
 
-        // Sync user into local DB (create if first login, update on every request)
+        // create if first login, update on every request/...just sync
         UserEntity user = userRepository.findById(userId)
                 .orElseGet(() -> UserEntity.builder()
                         .id(userId)
@@ -95,10 +89,7 @@ public class ClerkSyncJwtConverter implements Converter<Jwt, AbstractAuthenticat
 
         userRepository.save(user);
 
-        // ★★★ THE FIX: Build authorities from the DB role, not JWT scope claims ★★★
-        Collection<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole())
-        );
+        Collection<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole()));
 
         return new JwtAuthenticationToken(jwt, authorities);
     }

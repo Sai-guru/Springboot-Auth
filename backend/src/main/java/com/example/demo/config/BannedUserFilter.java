@@ -35,15 +35,13 @@ public class BannedUserFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response,FilterChain filterChain)throws ServletException,IOException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             UserEntity user = userRepository.findById(auth.getName()).orElse(null);
+
             if (user != null && !user.isActive()) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json");
@@ -52,7 +50,7 @@ public class BannedUserFilter extends OncePerRequestFilter {
                     + "\"message\":\"This account has been suspended.\","
                     + "\"timestamp\":\"" + java.time.Instant.now() + "\"}"
                 );
-                return; // stop the filter chain — request never reaches controller
+                return; // stop the filter chain — req never reaches controller
             }
         }
 

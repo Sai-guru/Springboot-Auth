@@ -19,10 +19,8 @@ import com.example.demo.service.RoleManagementService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Admin/Owner endpoints for managing users, roles, and bans.
- * This is the controller that gives your "separate table" power to edit the users table.
- */
+// Admin/Owner endpoints for managing users, roles, and bans.This is the controller that gives the our "separate table" power to edit the users table.
+ 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -30,85 +28,84 @@ public class RoleManagementController {
 
     private final RoleManagementService roleManagementService;
 
-    // ── READ endpoints ────────────────────────────────────────
-
-    /** GET /api/admin/users — List all users (admin+ only) */
+    // GET /api/admin/users — List all users (admin+ only)
     @GetMapping("/users")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<List<UserEntity>> getAllUsers() {
+
+        
         return ResponseEntity.ok(roleManagementService.getAllUsers());
     }
 
-    /** GET /api/admin/users?role=ROLE_USER — Filter users by role */
+    //GET /api/admin/users?role=ROLE_USER — Filter users by role 
     @GetMapping("/users/role")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<List<UserEntity>> getUsersByRole(@RequestParam String role) {
+
         return ResponseEntity.ok(roleManagementService.getUsersByRole(role));
     }
 
-    /** GET /api/admin/users/banned — List all banned users */
+    //GET /api/admin/users/banned — List all banned users 
     @GetMapping("/users/banned")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<List<UserEntity>> getBannedUsers() {
+
         return ResponseEntity.ok(roleManagementService.getBannedUsers());
     }
 
-    /** GET /api/admin/audit/user/{id} — Audit log for one user */
+    //GET /api/admin/audit/user/{id} — Audit log for one user...
     @GetMapping("/audit/user/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<List<AdminAuditEntity>> getUserAuditLog(@PathVariable String id) {
+
         return ResponseEntity.ok(roleManagementService.getUserAuditLog(id));
     }
 
-    /** GET /api/admin/audit — Full audit log (OWNER only) */
+    //GET /api/admin/audit — Full audit log (only OWNER here)
     @GetMapping("/audit")
     @PreAuthorize("hasAuthority('ROLE_OWNER')")
     public ResponseEntity<List<AdminAuditEntity>> getFullAuditLog() {
+
         return ResponseEntity.ok(roleManagementService.getFullAuditLog());
     }
 
-    // ── WRITE endpoints ───────────────────────────────────────
+    //  WRITE endpoints 
 
-    /** PATCH /api/admin/users/{id}/role — Change a user's role */
+    //PATCH /api/admin/users/{id}/role — Change a user's role
     @PatchMapping("/users/{id}/role")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<UserEntity> changeRole(
-            @PathVariable String id,
-            @RequestBody RoleChangeRequest req) {
+    public ResponseEntity<UserEntity> changeRole(@PathVariable String id, @RequestBody RoleChangeRequest req) {
+
         return ResponseEntity.ok(roleManagementService.changeRole(id, req.getRole(), req.getNotes()));
     }
 
-    /** PATCH /api/admin/users/{id}/ban — Ban a user */
+    //PATCH /api/admin/users/{id}/ban — Ban a user
     @PatchMapping("/users/{id}/ban")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<UserEntity> banUser(
-            @PathVariable String id,
-            @RequestBody ActionRequest req) {
+    public ResponseEntity<UserEntity> banUser(@PathVariable String id, @RequestBody ActionRequest req) {
+
         return ResponseEntity.ok(roleManagementService.banUser(id, req.getNotes()));
     }
 
-    /** PATCH /api/admin/users/{id}/unban — Unban a user */
+    //PATCH /api/admin/users/{id}/unban — Unban a user
     @PatchMapping("/users/{id}/unban")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<UserEntity> unbanUser(
-            @PathVariable String id,
-            @RequestBody ActionRequest req) {
+    public ResponseEntity<UserEntity> unbanUser(@PathVariable String id,@RequestBody ActionRequest req) {
+
         return ResponseEntity.ok(roleManagementService.unbanUser(id, req.getNotes()));
     }
 
-    /** PATCH /api/admin/users/{id}/profile — Admin edits a user's profile */
+    //PATCH /api/admin/users/{id}/profile — Admin edits a user's profile
     @PatchMapping("/users/{id}/profile")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<UserEntity> editUserProfile(
-            @PathVariable String id,
-            @RequestBody ProfileEditRequest req) {
+    public ResponseEntity<UserEntity> editUserProfile( @PathVariable String id, @RequestBody ProfileEditRequest req) {
+
         return ResponseEntity.ok(roleManagementService.editUserProfile(
-                id, req.getUsername(), req.getEmail(),
-                req.getPostCount(), req.getLikeCount(),
+                id, req.getUsername(), req.getEmail(),  req.getPostCount(), req.getLikeCount(),
                 req.getCommentCount(), req.getProjectCount()));
     }
 
-    // ── Request DTOs (inner classes to keep it simple) ────────
+    // Request DTOs -inner classes to keep it simple and easy to manage btw
 
     @Data
     public static class RoleChangeRequest {

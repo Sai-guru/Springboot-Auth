@@ -12,12 +12,11 @@ public final class Roles {
         if(role == null) return false;
         for (String r : ALL_ROLES) {
             if(r.equalsIgnoreCase(role)) return true;
-
     }
         return false;
     }
-    private Roles() {
-        // Private constructor to prevent instantiation
-    }
+    private Roles() { // Private constructor to prevent instantiation
+        }
+
 
 }

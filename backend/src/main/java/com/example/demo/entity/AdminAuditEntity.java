@@ -12,14 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Audit log for every admin/owner action that mutates a user's record.
- * You said "what if they have a separate table and this also having the power
- * to edit the users table" — this IS that separate table.
- *
- * Every role change, ban, unban, or profile edit by an admin is recorded here.
- * Owners can query this to see who did what and when.
- */
+
+//  Audit log for every admin/owner action that changes a user's record.
+//  to edit the users table — this IS that separate table. Every role change, ban, unban, or profile edit by an admin is recorded here.
+//  Owners can query this to see who did what and when.
+
 @Entity
 @Table(name = "admin_audit")
 @Getter
@@ -30,16 +27,16 @@ import lombok.Setter;
 public class AdminAuditEntity {
 
     @Id
-    private String id; // UUID — generate in service layer
+    private String id; // UUID — generate in service layer, so no need for @GeneratedValue and etc.here
 
-    /** The admin/owner who performed the action */
+//    The admin/owner who performed the action 
     @Column(nullable = false)
     private String actorId;
 
     @Column(nullable = false)
     private String actorRole;
 
-    /** The target user who was affected */
+//    The target user who was damaged 
     @Column(nullable = false)
     private String targetUserId;
 
@@ -49,11 +46,9 @@ public class AdminAuditEntity {
     @Column(nullable = false)
     private String targetNewRole;
 
-    /** What kind of action was performed */
     @Column(nullable = false)
     private String actionType; // ROLE_CHANGE, BAN, UNBAN, PROFILE_EDIT
 
-    /** Free-text notes / reason */
     @Column(nullable = true, length = 500)
     private String notes;
 
